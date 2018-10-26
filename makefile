@@ -1,19 +1,19 @@
-INIT_OBJS 		= InitiatorMain.o InitiatorFunctions.o MiscFunctions.o
+INIT_OBJS 	= InitiatorMain.o InitiatorFunctions.o MiscFunctions.o
 MIRROR_OBJS 	= MirrorServerMain.o MirrorServerFunctions.o ServerList.o AuxList.o MiscFunctions.o Buffer.o
 CONTENT_OBJS	= ContentServerMain.o ContentServerFunctions.o ServerList.o AuxList.o MiscFunctions.o 
 
-INIT_SOURCE		= InitiatorMain.c InitiatorFunctions.c MiscFunctions.c 
+INIT_SOURCE	= InitiatorMain.c InitiatorFunctions.c MiscFunctions.c 
 MIRROR_SOURCE	= MirrorServerMain.c MirrorServerFunctions.c ServerList.c AuxList.c MiscFunctions.c Buffer.c
 CONTENT_SOURCE	= ContentServerMain.c ContentServerFunctions.c ServerList.c AuxList.c MiscFunctions.c
 
-HEADER  = InitiatorFunctions.h MirrorServerFunctions.h ContentServerFunctions.h MiscHeader.h AuxList.h ServerList.h Buffer.h
+HEADER  	= InitiatorFunctions.h MirrorServerFunctions.h ContentServerFunctions.h MiscHeader.h AuxList.h ServerList.h Buffer.h
 
 INIT_OUT	= MirrorInitiator 
 MIRROR_OUT 	= MirrorServer
-CONTENT_OUT = ContentServer
+CONTENT_OUT 	= ContentServer
 
-CC	= gcc
-FLAGS   = -g -c 
+CC		= gcc
+FLAGS   	= -g -c 
 
 ###################  For my testing  ##################################
 
