@@ -11,6 +11,7 @@ Three main programs:
 
 
 The following picture shows how the application works
+![img not found]( "Figure")
 
 
 
