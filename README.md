@@ -11,11 +11,7 @@ Three main programs:
 
 
 The following picture shows how the application works
-![img not found]( "Figure")
-
-
-
-
+![img not found](https://github.com/giorgospan/SelectiveOverheadMirroring/blob/master/Figure.png "Figure")
 
 
 More details will be added soon !!!
