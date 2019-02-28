@@ -1,0 +1,7 @@
+# ignore any object files from any directories
+*/*.o
+
+# ingore all files inside bin directory
+build/
+
+
