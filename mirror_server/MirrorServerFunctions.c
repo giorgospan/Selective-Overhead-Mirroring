@@ -1,13 +1,14 @@
-#include <stdio.h> 
-#include <string.h>    	/* For strerror */
-#include <stdlib.h>    	/* For exit     */
-#include <pthread.h>   	/* For threads  */
-#include <fcntl.h> 		/* For having access to flags  */
-#include <sys/stat.h>   /* For mkdir */
-#include <sys/types.h> 	/* For mkdir , open*/
-#include <netdb.h> 		/* For gai_strerror */
-#include <errno.h> 		/* For errno in mkpath*/
-#include <math.h>		/* For sqrt()*/
+#include <stdio.h>
+#include <string.h>/* For strerror */
+#include <stdlib.h>/* For exit */
+#include <unistd.h>/* For close and read */
+#include <pthread.h>/* For threads */
+#include <fcntl.h>/* For having access to flags */
+#include <sys/stat.h>/* For mkdir */
+#include <sys/types.h>/* For mkdir , open*/
+#include <netdb.h>/* For gai_strerror */
+#include <errno.h>/* For errno in mkpath*/
+#include <math.h>/* For sqrt()*/
 
 #include "MirrorServerFunctions.h"
 #include "ServerList.h"
@@ -29,20 +30,18 @@ double find_variance(double av_size,int n)
 	return sum/n;
 }
 
-
-
 int mkpath(const char* given_path,int* fd,int type)
 {
 	size_t len = strlen(given_path);
     char *path;
     char *p;
     errno = 0;
-	
-	/*We are gonna use a local variable*/
+
+	/* We are gonna use a local variable */
 	path = malloc((strlen(given_path)+1) * sizeof(char));
     strcpy(path, given_path);
 
-	
+
     /* Iterate the string */
     for (p = path + 1; *p; p++)
 	{
@@ -50,7 +49,7 @@ int mkpath(const char* given_path,int* fd,int type)
 		{
             /* Temporarily truncate */
             *p = '\0';
-			/*Might fail if dir already exists*/
+			/* Might fail if dir already exists */
 			if(mkdir(path,DIRPERMS)==-1)
 				if(errno!=EEXIST)
 					return 1;
@@ -74,41 +73,41 @@ int mkpath(const char* given_path,int* fd,int type)
 }
 
 void communication(int sock)
-{ 
+{
 	char rcvbuffer[MSGSIZE];
 	struct ServerListNode* temp;
 	int i,status,err,nread;
-	
+
 	while(strcmp(rcvbuffer,"END"))
 	{
-		/*Read Directory or File */
+		/* Read Directory or File */
 		if(read_data(sock,rcvbuffer,MSGSIZE)==-1)
 		{
 			perror("MirrorServer reading from Initiator");
 			exit(1);
 		}
-		/*Insert it in our list*/
+		/* Insert it in our list */
 		if(strcmp(rcvbuffer,"END"))
 			ServerListInsert(server_list,rcvbuffer);
 	}
-	
-	/*Create ID table for manager threads*/
+
+	/* Create ID table for manager threads */
 	if ((manager_ids = malloc(server_list->counter*sizeof(pthread_t))) == NULL )
 	{
 		perror ("MirrorServer malloc() for manager ids");
 		exit (1) ;
 	}
-	/*Assign each mirror_manager thread a ContentServer to communicate with*/
+	/* Assign each mirror_manager thread a ContentServer to communicate with */
 	temp = server_list-> start;
 	for(i=0;i<server_list->counter;++i,temp=temp->next)
 	{
-		if (err = pthread_create(manager_ids+i,NULL,mirror_manager,(void *)temp)) 
-		{ 
+		if (err = pthread_create(manager_ids+i,NULL,mirror_manager,(void *)temp))
+		{
 			my_perror("MirrorServer pthread_create()",err);
 			exit (1) ;
 		}
 	}
-	/*Wait for managers to exit*/
+	/* Wait for managers to exit */
 	for(i=0;i<server_list->counter;++i)
 	{
 		if ( err = pthread_join (*(manager_ids+i), NULL ))
@@ -117,11 +116,11 @@ void communication(int sock)
 			exit (1) ;
 		}
 	}
-	/*Set managers_exited to TRUE*/
+	/* Set managers_exited to TRUE */
 	managers_exited = 1;
-	/*Unblock workers that might be suspended on cond_nonempty*/
+	/* Unblock workers that might be suspended on cond_nonempty */
 	pthread_cond_broadcast(&cond_nonempty);
-	
+
 	free(manager_ids);
 }
 
@@ -134,35 +133,35 @@ void* mirror_manager(void* arg)
 	char message[MSGSIZE];
 	struct ListNode* request;
 	struct ServerListNode* node = (struct ServerListNode*)arg;
-	
-	/*Create connection with ContentServer*/
+
+	/* Create connection with ContentServer */
 	ret = CreateClientSocket(&sock,&status,node->address,node->port);
 	if(ret == 1 || ret==2)
 	{
 		printf("Could not connect to ContentServer: <%s|%s>\n",node->address,node->port);
 		pthread_exit((void*)0);
 	}
-	
-	/*Do this for each request intended for this ContentServer*/
+
+	/* Do this for each request intended for this ContentServer */
 	request = node -> request_list -> start;
 	while(request)
 	{
-		/*ID: <ContentServer Address,ContentServer Port> */
+		/* ID: <ContentServer Address,ContentServer Port> */
 		sprintf(message,"LIST %s %s %d",node->address,node->port,request->type);
-		
-		/*Send LIST message to ContentServer*/
+
+		/* Send LIST message to ContentServer */
 		if ( write_data(sock ,message,MSGSIZE) == -1)
 		{
 			perror("MirrorManager writing LIST message");
 			exit(1);
 		}
-		
+
 		found=0;
 		memset(rcvbuffer,0,MSGSIZE);
-		/*Read results [one by one] from LIST */
+		/* Read results [one by one] from LIST */
 		while(strcmp(rcvbuffer,"END"))
 		{
-			/*Read incoming path*/
+			/* Read incoming path */
 			if(read_data(sock,rcvbuffer,MSGSIZE) == -1)
 			{
 				perror("MirrorManager read()");
@@ -170,25 +169,25 @@ void* mirror_manager(void* arg)
 			}
 			if(strcmp(rcvbuffer,"END")!=0)
 			{
-				
+
 
 				sscanf(rcvbuffer,"%s %d",path,&type);
-				/*Apply filter*/
+				/* Apply filter */
 				if(filter(path,request->entity))
 				{
 					found=1;
-					/*Place it in the buffer*/
+					/* Place it in the buffer */
 					place(path,node->address,node->port,type,request->type);
 				}
 			}
 			else break;
 		}
 		if(!found)printf("<%s> not found in <%s>\n",request->entity,node->address);
-		
-		/*Move to the next request*/
+
+		/* Move to the next request */
 		if( !(request = request -> next))
 		{
-			/*Inform ContentServer that you do not have any other requests*/
+			/* Inform ContentServer that you do not have any other requests */
 			if ( write_data(sock ,"END",MSGSIZE) == -1)
 			{
 				perror("MirrorManager write()");
@@ -197,7 +196,7 @@ void* mirror_manager(void* arg)
 		}
 		else
 		{
-			/*Inform ContentServer that you still have more requests*/
+			/* Inform ContentServer that you still have more requests */
 			if ( write_data(sock ,"NO END",MSGSIZE) == -1)
 			{
 				perror("MirrorManager write()");
@@ -205,11 +204,11 @@ void* mirror_manager(void* arg)
 			}
 		}
 	}
-	
+
 	pthread_mutex_lock(&devices_done_mtx);
 	++numDevicesDone;
 	pthread_mutex_unlock(&devices_done_mtx);
-	
+
 	close(sock);
 	pthread_exit((void*)0);
 }
@@ -226,7 +225,7 @@ void* worker(void* arg)
 	int type,delay;
 	int current_file_size;
 	int fd,sock,status,ret,nwrite,nread;
-	
+
 	/*There are still running managers */
 	/*   OR 	*/
 	/*All managers have exited but there are still items in the buffer */
@@ -236,7 +235,7 @@ void* worker(void* arg)
 		ret = obtain(dirorfilename,address,port,&type,&delay);
 		/*Make sure something has been consumed*/
 		if(!ret)break;
-		
+
 		/*Call mkpath */
 		snprintf(path,sizeof(path)-1,"%s/%s_%s/%s",dirname,address,port,dirorfilename);
 		ret = mkpath(path,&fd,type);
@@ -254,7 +253,7 @@ void* worker(void* arg)
 		{
 			continue;
 		}
-		
+
 		/*A file has been obtained*/
 		if(type)
 		{
@@ -269,7 +268,7 @@ void* worker(void* arg)
 			{
 				printf("Worker could not connect to ContentServer: <%s|%s>\n\n",address,port);
 			}
-			
+
 			/*Send FETCH message to ContentServer */
 			sprintf(message,"FETCH %s %d",dirorfilename,delay);
 			if ( write_data(sock ,message,MSGSIZE) == -1)
@@ -277,7 +276,7 @@ void* worker(void* arg)
 				perror("Worker writing FETCH message");
 				exit(1);
 			}
-			
+
 			/*Make sure file is still in ContentServer*/
 			if( read_data(sock,rcvbuffer,MSGSIZE)==-1)
 			{
@@ -294,7 +293,7 @@ void* worker(void* arg)
 					/*write_data() guarantees that nread bytes are written in the file*/
 					nwrite=write_data(fd,message,nread);
 					current_file_size+=nwrite;
-					
+
 					pthread_mutex_lock(&bytes_mtx);
 					bytes_transferred+=nwrite;
 					pthread_mutex_unlock(&bytes_mtx);
@@ -317,7 +316,7 @@ void* worker(void* arg)
 				/*Increase number of files transferred*/
 				files_transferred++;
 				pthread_mutex_unlock(&files_mtx);
-				
+
 			}
 			else printf("Could not fetch <%s>\n",dirorfilename);
 			close(fd);
@@ -335,7 +334,7 @@ void* worker(void* arg)
 
 int filter(char* contentpath,char* initpath)
 {
-	
+
 	char* ptr;
 	if(ptr = strstr(contentpath,initpath))
 	{

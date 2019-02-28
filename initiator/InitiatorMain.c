@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 /*for getaddrinfo() and sockets*/
 #include <sys/types.h>
@@ -14,14 +15,14 @@
 
 int main(int argc,char* argv[])
 {
-	
+
 	int i,sock,status,ret;
 	int arg1,arg2,arg3 ;
 	char* serveraddress;
 	char* port;
 	char* list;
 	arg1 = arg2 = arg3 = 0;
-	
+
 	for(i=1;i<argc;++i)
 	{
 		if(!strcmp(argv[i],"-n"))
@@ -42,20 +43,25 @@ int main(int argc,char* argv[])
 			strcpy(list,argv[i+1]);
 			arg3 = 1;
 		}
-	
+
 	}
 	/*Sanity check*/
 	if(!arg1 || !arg2 || !arg3)
 	{
-		printf("You did not provided all arguments for Initiator.Exiting...\n\n");
+		fprintf(stderr,"Usage: ./MirrorInitiator -n <MirrorServerAddress> -p <MirrorServerPort>"
+"-s <ContentServerAddress1:ContentServerPort1:dirorfile1:delay1,"
+"ContentServerAddress2:ContentServerPort2:dirorfile2:delay2, ...>\n\n");
 		exit(1);
 	}
+
+
 	printf("Arguments\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("Address	:%s\n",serveraddress);
-	printf("Port	:%s\n",port);
-	printf("List	:%s\n\n\n",list);
-	
+	printf("Address	                    :%s\n",serveraddress);
+	printf("Port	                      :%s\n",port);
+	printf("Directories to be mirrored	:%s\n\n\n",list);
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
 	/*Create connection with MirrorServer*/
 	ret = CreateClientSocket(&sock,&status,serveraddress,port);
 	if(ret == 1)
@@ -68,15 +74,15 @@ int main(int argc,char* argv[])
 		perror("Initiator could not find an optimal socket");
 		exit(1);
 	}
-	
+
 	/*Start communication Initiator <-----> MirrorServer */
 	communication(sock,list);
-	
+
 	free(serveraddress);
 	free(list);
 	free(port);
 	close(sock);
-	
+
 	printf("Initiator is exiting....\n");
 	exit(0);
 }

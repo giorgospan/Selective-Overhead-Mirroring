@@ -1,8 +1,10 @@
-#include <stdio.h> 
-#include <string.h>    	/* For strerror */
-#include <stdlib.h>    	/* For exit     */
+#include <stdio.h>
+#include <string.h> /* For strerror */
+#include <stdlib.h> /* For exit */
+#include <unistd.h> /* For close,read,write */
+#include <pthread.h> /* pthread functions */
 
-#include <fcntl.h> 		/* For having access to flags  */
+#include <fcntl.h> /* For having access to flags  */
 
 /*for readdir opendir*/
 #include <sys/types.h>
@@ -19,7 +21,7 @@ void content(const char *name)
     DIR* dir;
     struct dirent* entry;
 	int type;
-	
+
 	/* Open Directory given */
     if (!(dir = opendir(name)))
 	{
@@ -27,19 +29,19 @@ void content(const char *name)
         exit(1);
 	}
 
-    while (entry = readdir(dir)) 
+    while (entry = readdir(dir))
 	{
 		len = snprintf(path, sizeof(path)-1, "%s/%s", name, entry->d_name);
 		path[len] = 0;
 		type=1;
-        if (entry->d_type == DT_DIR) 
+        if (entry->d_type == DT_DIR)
 		{
 			type=0;
             if (!strcmp(entry->d_name, ".") ||  !strcmp(entry->d_name, "..") )
                 continue;
             content(path);
         }
-		
+
 		/*Insert entry at list */
 		ListInsert(contentlist,path,type);
     }
@@ -55,7 +57,7 @@ void* thread_f(void* argument)
 	struct argument* arg = (struct argument*)argument;
 	int sock = arg->sock;
 	strcpy(rcvbuffer,arg->rcvbuffer);
-	
+
 	/*Check operation*/
 	sscanf(rcvbuffer,"%s",operation);
 	if(!strcmp(operation,"LIST"))
@@ -64,7 +66,7 @@ void* thread_f(void* argument)
 		while(1)
 		{
 			list(sock);
-			
+
 			/*Read termination signal written by mirror-manager thread*/
 			if( read_data(sock,termsignal,MSGSIZE)==-1)
 			{
@@ -125,13 +127,13 @@ void fetch(int sock,char* rcvbuffer)
 	char databuffer[MSGSIZE];
 	char path_to_file[PATHSIZE];
 	char fetchrequest[MSGSIZE];
-	
+
 	/*Use local variables*/
 	newsock=sock;
 	strcpy(fetchrequest,rcvbuffer);
-	
+
 	sscanf(fetchrequest,"%*s %s %d",path_to_file,&delay);
-	
+
 	/*Inform Worker thread that the requested file is still here*/
 	if ((fd = open (path_to_file,O_RDONLY))== -1)
 	{
@@ -150,10 +152,10 @@ void fetch(int sock,char* rcvbuffer)
 		}
 	}
 	memset(databuffer,0,MSGSIZE);
-	
+
 	/*Delay for a couple of seconds*/
 	sleep(delay);
-	
+
 	/*Read from file - write all bytes read to the socket*/
 	while( (nread=read(fd,databuffer,MSGSIZE)) >0)
 	{
