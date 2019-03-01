@@ -83,12 +83,12 @@ int main(int argc,char* argv[])
 		fprintf(stderr,"Usage: ./MirrorServer -p <port> -m <dirname> -w <threadnum>\n\n");
 		exit(1);
 	}
-	printf("Arguments\n");
-	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("Port		        :%s\n",port);
-	printf("Threadnum	      :%d\n",threadnum);
-	printf("Destination Dir	:%s\n\n",dirname);
-	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
+	printf("=============================================================\n");
+	printf("%-20s%s\n","Port:",port);
+	printf("%-20s%d\n","Threadnum:",threadnum);
+	printf("%-20s%s\n","Dest Dir:",dirname);
+	printf("=============================================================\n\n");
 
 	count      = 2;
 	size_table = malloc(2*sizeof(long long));

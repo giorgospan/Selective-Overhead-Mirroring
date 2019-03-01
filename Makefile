@@ -27,14 +27,14 @@ CFLAGS		       = -I./include -g
 ###################  For my testing  ##################################
 # run_init: $(INIT_OUT)
 	# ./$(INIT_OUT) -n linux03.di.uoa.gr -s linux02.di.uoa.gr:9002:Content02:25 -p 9002
-	# ./$(INIT_OUT) -n 127.0.0.1 -s 127.0.0.1:9002:src/:25 -p 9002
+	# ./$(INIT_OUT) -n 127.0.0.1 -s 127.0.0.1:9002:inner:25 -p 9002
 
 
 # run_mirror:$(MIRROR_OUT)
 	# ./$(MIRROR_OUT) -p 9002 -m /home/george/Desktop/results -w 10
 
 # run_content:$(CONTENT_OUT)
-	# ./$(CONTENT_OUT) -d /home/george/Desktop/B_Plus_Tree -p 9002
+	# ./$(CONTENT_OUT) -d /home/george/Desktop/misc -p 9002
 
 
 ############## Initiator ##############

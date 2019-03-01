@@ -54,22 +54,20 @@ int main(int argc ,char* argv[])
 		fprintf(stderr,"Usage: ./ContentServer -p <port> -d <dirorfilename>\n\n");
 		exit(1);
 	}
-	printf("Arguments\n");
-	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("Port			        :%s\n",port);
-	printf("Content Directory	:%s\n",pathname);
-	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-
+	printf("=============================================================\n");
+	printf("%-20s%s\n","Port:",port);
+	printf("%-20s%s\n","Content Directory:",pathname);
+	printf("=============================================================\n\n");
 
 	/*Remove trailing slash from given path*/
 	remove_slash(pathname);
 
-	/*Create a list with my available content*/
+	/* Create a list with my available content */
 	ListCreate(&contentlist);
 	content(pathname);
 	ids = malloc(2*sizeof(pthread_t));
 
-	/*Create socket and start listening to it*/
+	/* Create socket and start listening to it */
 	ret = CreateServerSocket(&sock,&status,port);
 	if(ret == 1)
 	{
@@ -92,7 +90,7 @@ int main(int argc ,char* argv[])
         	exit(1);
 	}
 
-	printf("Passive socket		:%d\n\n",sock);
+	// printf("Passive socket		:%d\n\n",sock);
 
 	/* Loops forever waiting for clients[mirror-managers or workers] to serve */
 	while(1)
