@@ -23,13 +23,13 @@ Application comprises three main programs:
 
      1. MirrorManager thread sends a *LIST* request to its respective ContentServer providing it with delay, which will be used later by the ContentServer during data transfer.
 
-     2. ContentServer responds back with a list of directories and files available for mirroring to the MirrorServer. The manager thread stores this list in a limited-size buffer, shared by the worker threads.
+     2. ContentServer responds back with a list of directories and files available for mirroring to the MirrorServer. The manager thread stores this list in a limited-size queue, shared by the worker threads.
 
    * **Worker Threads** :
 
       They run in parallel and are responsible for mirroring and storing the files in MirrorServer. More precisely, worker's task can be described by the following steps:
 
-      1. Worker thread extracts a directory/file from the buffer.
+      1. Worker thread extracts a directory/file from the buffer(queue).
 
       2. It then sends a FETCH request to the ContentServer serving this specific directory/file.
 
@@ -37,9 +37,9 @@ Application comprises three main programs:
 
       4. Worker receives the directory/file and stores it in MirrorServer's machine.
 
-  * **Shared Buffer** :
+  * **Shared Queue** :
 
-     MirrorManagers and Workers act as producers and consumers respectively. Thus, in order to avoid race conditions occurred during the concurrent manipulation of the buffer by MirrorManager threads and Worker threads, we make use of condition variables. Busy-waiting is not option due to its inefficiency.
+     MirrorManagers and Workers act as producers and consumers respectively. Thus, in order to avoid race conditions occurred during the concurrent manipulation of the buffer(queue) by MirrorManager threads and Worker threads, we make use of condition variables. Busy-waiting is not option due to its inefficiency.
 
 
 * **ContentServer :**
@@ -61,9 +61,9 @@ The following image illustrates how the mirroring system works
 
 * `./ContentServer -p <port> -d <dirorfilename>`
 
- * `port` : port number that ContentServer is listening to
+  * `port` : port number that ContentServer is listening to
 
- * `dirorfilename` : directory or file available for mirroring
+  * `dirorfilename` : directory or file available for mirroring
 
 ### Mirror Server
 
@@ -73,11 +73,11 @@ The following image illustrates how the mirroring system works
 
 * `./MirrorServer -p <port> -m <dirname> -w <threadnum>`
 
- * `port` : port number that MirrorServer is listening to
+  * `port` : port number that MirrorServer is listening to
 
- * `dirname` : directory for storing the mirrored directories/files
+  * `dirname` : directory for storing the mirrored directories/files
 
- * `threadnum` : number of worker threads
+  * `threadnum` : number of worker threads
 
 ### Mirror Initiator
 
@@ -89,17 +89,17 @@ The following image illustrates how the mirroring system works
 -s <ContentServerAddress1:ContentServerPort1:dirorfile1:delay1, \\
 ContentServerAddress2:ContentServerPort2:dirorfile2:delay2, ...>`
 
- * `MirrorServerAddress` : IP Address or hostname of the machine running the MirrorServer program
+  * `MirrorServerAddress` : IP Address or hostname of the machine running the MirrorServer program
 
- * `MirrorServerPort` : port number that MirrorServer is listening to
+  * `MirrorServerPort` : port number that MirrorServer is listening to
 
- * `ContentServerAddressX` : IP Address or hostname of the machine running the ContentServerX program
+  * `ContentServerAddressX` : IP Address or hostname of the machine running the ContentServerX program
 
- * `ContentServerPortX` : port number ContentServerX is listening to
+  * `ContentServerPortX` : port number ContentServerX is listening to
 
- * `dirorfileX` : directory or file available for mirroring from ContentServerX
+  * `dirorfileX` : directory or file available for mirroring from ContentServerX
 
- * `delayX` : seconds added by ContentServerX before sending a directory or file
+  * `delayX` : seconds added by ContentServerX before sending a directory or file
 
 #### Note
 Make sure ContentServer and MirrorServer are online before you start the MirrorInitiator program
