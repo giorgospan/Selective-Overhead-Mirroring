@@ -13,7 +13,7 @@ void communication(int socket,char* list)
 	char sendbuffer[MSGSIZE];
 	char rcvbuffer[MSGSIZE];
 	int end = 0;
-    
+
 	request = strtok (list,",");
     while (request != NULL)
 	{
@@ -40,7 +40,7 @@ void communication(int socket,char* list)
 	}
 	
 	printf("Statistics:\n");
-	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("=============================================\n");
 	printf("%s\n\n",rcvbuffer);
 }
 

@@ -54,8 +54,8 @@ int main(int argc ,char* argv[])
 		fprintf(stderr,"Usage: ./ContentServer -p <port> -d <dirorfilename>\n\n");
 		exit(1);
 	}
-	printf("=============================================================\n");
-	printf("%-20s%s\n","Port:",port);
+	printf("\n=============================================================\n");
+	printf("%-20s%s\n","Content Port:",port);
 	printf("%-20s%s\n","Content Directory:",pathname);
 	printf("=============================================================\n\n");
 
@@ -156,6 +156,8 @@ int main(int argc ,char* argv[])
 	free(pathname);
 	close(sock);
 
-	printf("ContentServer is exiting...\n");
+	printf("\n===========================\n");
+	printf("ContentServer is exiting...");
+	printf("\n===========================\n");
 	exit(0);
 }

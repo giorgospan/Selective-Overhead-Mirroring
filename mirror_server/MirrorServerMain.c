@@ -84,10 +84,10 @@ int main(int argc,char* argv[])
 		exit(1);
 	}
 
-	printf("=============================================================\n");
-	printf("%-20s%s\n","Port:",port);
-	printf("%-20s%d\n","Threadnum:",threadnum);
-	printf("%-20s%s\n","Dest Dir:",dirname);
+	printf("\n=============================================================\n");
+	printf("%-20s%s\n","Mirror Port:",port);
+	printf("%-20s%d\n","Mirror Threadnum:",threadnum);
+	printf("%-20s%s\n","Mirror Dest Dir:",dirname);
 	printf("=============================================================\n\n");
 
 	count      = 2;
@@ -101,7 +101,7 @@ int main(int argc,char* argv[])
 	switch (ret)
 	{
 		case -1:
-			printf("Transfer Dir already exists\n\n");
+			printf("Note: Destination directory already exists\n\n");
 			break;
 		case 1:
 		case 2:
@@ -194,13 +194,13 @@ int main(int argc,char* argv[])
 	char variance[MSGSIZE];
 
 	av_size = (double)bytes_transferred / files_transferred;
-	var = find_variance(av_size,files_transferred);
+	var     = find_variance(av_size,files_transferred);
 
-	snprintf(bytes,sizeof(bytes)-1,			"Bytes transferred		:%llu",bytes_transferred);
-	snprintf(files,sizeof(bytes)-1,			"Files transferred		:%d",files_transferred);
-	snprintf(dirs,sizeof(bytes)-1, 			"Directories transferred		:%d",dirs_transferred);
-	snprintf(average,sizeof(average)-1,		"Average file size		:%.2lf",av_size);
-	snprintf(variance,sizeof(variance)-1,"Size variance			:%.2lf",var);
+	snprintf(bytes,sizeof(bytes)-1,"%-30s%llu","Bytes transferred:",bytes_transferred);
+	snprintf(files,sizeof(bytes)-1,"%-30s%d","Files transferred:",files_transferred);
+	snprintf(dirs,sizeof(bytes)-1,"%-30s%d","Directories transferred:",dirs_transferred);
+	snprintf(average,sizeof(average)-1,"%-30s%.2lf bytes","Average file size:",av_size);
+	snprintf(variance,sizeof(variance)-1,"%-30s%.2lf bytes","Size variance:",var);
 
 
 	snprintf(statistics,sizeof(statistics)-1,"%s\n%s\n%s\n%s\n%s",bytes,files,dirs,average,variance);
@@ -235,6 +235,9 @@ int main(int argc,char* argv[])
 	free(worker_ids);
 	free(dirname);
 	free(size_table);
-	printf("MirrorServer is exiting...\n");
+
+	printf("\n==========================\n");
+	printf("MirrorServer is exiting...");
+	printf("\n==========================\n");
 	exit(0);
 }

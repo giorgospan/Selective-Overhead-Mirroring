@@ -55,9 +55,9 @@ int main(int argc,char* argv[])
 	}
 
 
-	printf("=============================================================\n");
-	printf("%-20s%s\n","Address:",serveraddress);
-	printf("%-20s%s\n","Port:",port);
+	printf("\n=============================================================\n");
+	printf("%-20s%s\n","Mirror Address:",serveraddress);
+	printf("%-20s%s\n","Mirror Port:",port);
 	printf("%-20s%s\n","Directories:",list);
 	printf("=============================================================\n\n");
 
@@ -82,6 +82,8 @@ int main(int argc,char* argv[])
 	free(port);
 	close(sock);
 
-	printf("Initiator is exiting....\n");
+	printf("\n========================\n");
+	printf("Initiator is exiting....");
+	printf("\n========================\n");
 	exit(0);
 }

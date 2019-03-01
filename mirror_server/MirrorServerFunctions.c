@@ -33,30 +33,27 @@ double find_variance(double av_size,int n)
 int mkpath(const char* given_path,int* fd,int type)
 {
 	size_t len = strlen(given_path);
-    char *path;
-    char *p;
-    errno = 0;
+	char *path;
+	char *p;
+	errno = 0;
 
 	/* We are gonna use a local variable */
 	path = malloc((strlen(given_path)+1) * sizeof(char));
-    strcpy(path, given_path);
+	strcpy(path, given_path);
 
 
-    /* Iterate the string */
-    for (p = path + 1; *p; p++)
-	{
-        if (*p == '/')
+	/* Iterate the string */
+	for (p = path + 1; *p; p++)
+		if (*p == '/')
 		{
-            /* Temporarily truncate */
-            *p = '\0';
+			/* Temporarily truncate */
+			*p = '\0';
 			/* Might fail if dir already exists */
 			if(mkdir(path,DIRPERMS)==-1)
 				if(errno!=EEXIST)
 					return 1;
-
-            *p = '/';
-        }
-    }
+				*p = '/';
+		}
 	switch (type)
 	{
 		case 0:
@@ -169,9 +166,8 @@ void* mirror_manager(void* arg)
 			}
 			if(strcmp(rcvbuffer,"END")!=0)
 			{
-
-
 				sscanf(rcvbuffer,"%s %d",path,&type);
+
 				/* Apply filter */
 				if(filter(path,request->entity))
 				{
@@ -182,7 +178,7 @@ void* mirror_manager(void* arg)
 			}
 			else break;
 		}
-		if(!found)printf("<%s> not found in <%s>\n",request->entity,node->address);
+		if(!found)printf("\n<%s> not found in <%s>\n",request->entity,node->address);
 
 		/* Move to the next request */
 		if( !(request = request -> next))
@@ -213,7 +209,6 @@ void* mirror_manager(void* arg)
 	pthread_exit((void*)0);
 }
 
-
 void* worker(void* arg)
 {
 	char address[ADDRESSSIZE];
@@ -236,7 +231,7 @@ void* worker(void* arg)
 		/*Make sure something has been consumed*/
 		if(!ret)break;
 
-		/*Call mkpath */
+		/* Call mkpath */
 		snprintf(path,sizeof(path)-1,"%s/%s_%s/%s",dirname,address,port,dirorfilename);
 		ret = mkpath(path,&fd,type);
 		if(ret  == 1)
