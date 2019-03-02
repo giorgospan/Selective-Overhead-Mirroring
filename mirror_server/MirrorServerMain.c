@@ -83,6 +83,11 @@ int main(int argc,char* argv[])
 		fprintf(stderr,"Usage: ./MirrorServer -p <port> -m <dirname> -w <threadnum>\n\n");
 		exit(1);
 	}
+	if(threadnum==0)
+	{
+		fprintf(stderr,"Error: <threadnum> must be a positive number\n\n");
+		exit(1);
+	}
 
 	printf("\n=============================================================\n");
 	printf("%-20s%s\n","Mirror Port:",port);
@@ -194,14 +199,19 @@ int main(int argc,char* argv[])
 	char average[MSGSIZE];
 	char variance[MSGSIZE];
 
-	av_size = (double)bytes_transferred / files_transferred;
-	var     = find_variance(av_size,files_transferred);
+	if(bytes_transferred > 0)
+	{
+		av_size = (double)bytes_transferred / files_transferred;
+		var     = find_variance(av_size,files_transferred);
+	}
+	else
+		av_size = var = 0;
 
-	snprintf(bytes,sizeof(bytes)-1,"%-30s%llu","Bytes transferred:",bytes_transferred);
-	snprintf(files,sizeof(bytes)-1,"%-30s%d","Files transferred:",files_transferred);
-	snprintf(dirs,sizeof(bytes)-1,"%-30s%d","Directories transferred:",dirs_transferred);
-	snprintf(average,sizeof(average)-1,"%-30s%.2lf bytes","Average file size:",av_size);
-	snprintf(variance,sizeof(variance)-1,"%-30s%.2lf bytes","Size variance:",var);
+	snprintf(bytes,sizeof(bytes)-1,"%-25s%llu","Bytes transferred:",bytes_transferred);
+	snprintf(files,sizeof(bytes)-1,"%-25s%d","Files transferred:",files_transferred);
+	snprintf(dirs,sizeof(bytes)-1,"%-25s%d","Directories transferred:",dirs_transferred);
+	snprintf(average,sizeof(average)-1,"%-25s%.2lf bytes","Average file size:",av_size);
+	snprintf(variance,sizeof(variance)-1,"%-25s%.2lf bytes","Size variance:",var);
 
 
 	snprintf(statistics,sizeof(statistics)-1,"%s\n%s\n%s\n%s\n%s",bytes,files,dirs,average,variance);

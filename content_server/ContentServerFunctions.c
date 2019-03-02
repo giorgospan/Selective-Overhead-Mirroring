@@ -58,7 +58,7 @@ void* thread_f(void* argument)
 	int sock = arg->sock;
 	strcpy(rcvbuffer,arg->rcvbuffer);
 
-	printf("%d-th Thread[%u] with socket:%d\n",arg->id,(unsigned)pthread_self(),sock);
+	// printf("%d-th Thread[%u] with socket:%d\n",arg->id,(unsigned)pthread_self(),sock);
 
 	/*Check operation*/
 	sscanf(rcvbuffer,"%s",operation);

@@ -81,7 +81,6 @@ void communication(int sock)
 			perror("MirrorServer reading from Initiator");
 			exit(1);
 		}
-		printf("Received from initiator: \"%s\"\n\n",rcvbuffer);
 		/* Insert it in our list */
 		if(strcmp(rcvbuffer,"END"))
 			ServerListInsert(server_list,rcvbuffer);
@@ -95,6 +94,7 @@ void communication(int sock)
 	}
 	/* Assign each mirror_manager thread a ContentServer to communicate with */
 	temp = server_list-> start;
+	ServerListPrint(server_list);
 	for(i=0;i<server_list->counter;++i,temp=temp->next)
 	{
 		if (err = pthread_create(manager_ids+i,NULL,mirror_manager,(void *)temp))
@@ -136,10 +136,9 @@ void* mirror_manager(void* arg)
 	ret = CreateClientSocket(&sock,&status,node->address,node->port);
 	if(ret == 1 || ret==2)
 	{
-		// printf("Could not connect to ContentServer: <%s|%s>\n",node->address,node->port);
+		printf("Could not connect to ContentServer: <%s|%s>\n",node->address,node->port);
 		pthread_exit((void*)0);
 	}
-	// printf("Connected to ContentServer: <%s|%s>\n",node->address,node->port);
 
 	/* Do this for each request intended for this ContentServer */
 	request = node -> request_list -> start;
@@ -147,6 +146,8 @@ void* mirror_manager(void* arg)
 	{
 		/* ID: <ContentServer Address,ContentServer Port> */
 		sprintf(message,"LIST %s %s %d",node->address,node->port,request->type);
+
+		printf("Manager[%u] requesting \"%s\"\n\n",(unsigned)pthread_self(),message);
 
 		/* Send LIST message to ContentServer */
 		if ( write_data(sock ,message,MSGSIZE) == -1)
@@ -159,6 +160,7 @@ void* mirror_manager(void* arg)
 		/* Read results [one by one] from LIST */
 		while(strcmp(rcvbuffer,"END"))
 		{
+
 			/* Read incoming path */
 			if(read_data(sock,rcvbuffer,MSGSIZE) == -1)
 			{
@@ -179,7 +181,7 @@ void* mirror_manager(void* arg)
 			}
 			else break;
 		}
-		if(!found)printf("\n<%s> not found in <%s>\n",request->entity,node->address);
+		if(!found)printf("\n<%s> not found in <%s>|<%s>\n",request->entity,node->address,node->port);
 
 		/* Move to the next request */
 		if( !(request = request -> next))
@@ -263,7 +265,8 @@ void* worker(void* arg)
 			}
 			else if(ret == 2)
 			{
-				printf("Worker could not connect to ContentServer: <%s|%s>\n\n",address,port);
+				fprintf(stderr,"Worker[%u] could not connect to ContentServer: <%s|%s>\n\n",(unsigned)pthread_self(),address,port);
+				exit(1);
 			}
 
 			/*Send FETCH message to ContentServer */

@@ -40,7 +40,7 @@ void ServerListInsert(struct ServerList* list,char* data)
 	current = list->start;
 	while(current)
 	{
-		if(!strcmp(current->address,address))
+		if(!strcmp(current->address,address) && !strcmp(current->port,port))
 		{
 			ListInsert(current->request_list,dirorfile,delay);
 			return;
