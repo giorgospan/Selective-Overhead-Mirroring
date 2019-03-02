@@ -114,6 +114,8 @@ void ServerListDestroy(struct ServerList* list)
 	while(current)
 	{
 		ListDestroy(current->request_list);
+		free(current->address);
+		free(current->port);
 		temp = current;
 		current = current -> next;
 		free(temp);

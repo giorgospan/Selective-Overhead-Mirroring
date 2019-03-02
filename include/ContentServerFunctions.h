@@ -1,7 +1,6 @@
 #ifndef CONTENT_FUNCTIONS_H
 #define CONTENT_FUNCTIONS_H
 
-#define MORE_THREADS 2
 #include "MiscHeader.h"
 
 /*Contains everything available in this ContentServer*/
@@ -12,6 +11,7 @@ struct argument
 {
 	char rcvbuffer[MSGSIZE];
 	int sock;
+	int id;
 };
 
 /*Inserts in contentlist every available entity*/

@@ -187,6 +187,7 @@ int main(int argc,char* argv[])
 
 	/*Send back statistics to Initiator*/
 	char statistics[MSGSIZE];
+	memset(statistics,0,MSGSIZE);
 	char bytes[MSGSIZE];
 	char files[MSGSIZE];
 	char dirs[MSGSIZE];

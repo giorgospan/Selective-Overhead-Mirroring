@@ -7,19 +7,16 @@
 
 void ListCreate(struct List** list)
 {
-	
+
 	if( (*list = malloc(sizeof(struct List)))==NULL)
 	{
 		perror("ContentServer ListCreate()");
 		exit(1);
 	}
-	
+
 	(*list) -> start = NULL;
 	(*list) -> counter = 0;
 }
-
-
-
 
 void ListInsert(struct List* list,char* payload,int type)
 {
@@ -34,11 +31,11 @@ void ListInsert(struct List* list,char* payload,int type)
 	new->entity = malloc( (strlen(payload)+1)*sizeof(char) );
 	strcpy(new->entity,payload);
 	new->type = type;
-	
+
 	/*Attach the new node to the list*/
 	new->next = list->start;
 	list->start = new;
-	
+
 	/*Increase number of elements*/
 	list->counter ++ ;
 }
@@ -47,7 +44,7 @@ void ListPrint(struct List* list)
 {
 	struct ListNode* current = list->start;
 	if(!list->counter)printf("List is empty\n");
-	
+
 	while(current)
 	{
 		printf("Entity		:%s\n",current->entity);
@@ -56,24 +53,22 @@ void ListPrint(struct List* list)
 	}
 }
 
-
-
-
 void ListDestroy(struct List* list)
 {
-	
+
 	struct ListNode* current;
 	struct ListNode* temp;
 	current = list->start;
-	
+
 	/*Loop until we've reached end of list*/
 	while(current)
 	{
+		free(current->entity);
 		temp = current;
 		current = current -> next;
 		free(temp);
 	}
-	
+
 	/*Free the main list node*/
 	free(list);
 }

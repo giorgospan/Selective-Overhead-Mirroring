@@ -90,14 +90,14 @@ void* thread_f(void* argument)
 	{
 		fetch(sock,rcvbuffer);
 	}
-	close(sock);
+	free(argument);
 	pthread_exit((void*)0);
 }
 
 void list(int newsock)
 {
-	char rcvbuffer[MSGSIZE];
 	char sendbuffer[MSGSIZE];
+	memset(sendbuffer,0,MSGSIZE);
 	struct ListNode* current;
 	int nwrite;
 	current = contentlist -> start;
@@ -151,7 +151,6 @@ void fetch(int sock,char* rcvbuffer)
 			exit(1);
 		}
 	}
-	memset(databuffer,0,MSGSIZE);
 
 	/*Delay for a couple of seconds*/
 	sleep(delay);

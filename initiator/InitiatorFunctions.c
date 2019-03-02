@@ -38,9 +38,9 @@ void communication(int socket,char* list)
 		perror("Initiator reading stats");
 		exit(1);
 	}
-	
+
 	printf("Statistics:\n");
-	printf("=============================================\n");
+	printf("=============================================================\n");
 	printf("%s\n\n",rcvbuffer);
 }
 

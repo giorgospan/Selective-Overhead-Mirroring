@@ -92,7 +92,7 @@ int main(int argc ,char* argv[])
 
 	// printf("Passive socket		:%d\n\n",sock);
 
-	/* Loops forever waiting for clients[mirror-managers or workers] to serve */
+	/* Loops forever waiting for clients[mirror_managers or workers] to serve */
 	while(1)
 	{
 		length = sizeof mirrorserver_address;
@@ -103,14 +103,12 @@ int main(int argc ,char* argv[])
 			exit(1);
 		}
 
-
 		/* Read LIST or FETCH */
 		if(read_data(newsock,rcvbuffer,MSGSIZE)==-1)
 		{
 			perror("ContentServer read()");
 			exit(1);
 		}
-
 
 		/* Check if realloc is needed for thread_id array */
 		if(numthreads+1 == count)
@@ -122,16 +120,18 @@ int main(int argc ,char* argv[])
 				exit(1);
 			}
 			count = 2*count;
-			ids = temp;
+			ids   = temp;
 		}
 
-		/* This will be passed to thread's functions */
-		struct argument arg;
-		strcpy(arg.rcvbuffer,rcvbuffer);
-		arg.sock = newsock;
+		/* This will be passed to thread's function */
+		/* Dynamic allocation is needed */
+		struct argument* arg = malloc(sizeof(struct argument));
+		strcpy(arg->rcvbuffer,rcvbuffer);
+		arg->sock = newsock;
+		arg->id   = numthreads;
 
 		/* Create a new thread to serve the incoming request */
-		if (err = pthread_create(ids+numthreads,NULL,thread_f,(void *)&arg))
+		if (err = pthread_create(ids+numthreads,NULL,thread_f,(void *)arg))
 		{
 			my_perror("MirrorServer pthread_create()",err);
 			exit (1) ;

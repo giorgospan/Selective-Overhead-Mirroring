@@ -33,14 +33,11 @@ double find_variance(double av_size,int n)
 int mkpath(const char* given_path,int* fd,int type)
 {
 	size_t len = strlen(given_path);
-	char *path;
+	char path[PATHSIZE];
 	char *p;
 	errno = 0;
 
-	/* We are gonna use a local variable */
-	path = malloc((strlen(given_path)+1) * sizeof(char));
 	strcpy(path, given_path);
-
 
 	/* Iterate the string */
 	for (p = path + 1; *p; p++)
@@ -72,6 +69,7 @@ int mkpath(const char* given_path,int* fd,int type)
 void communication(int sock)
 {
 	char rcvbuffer[MSGSIZE];
+	rcvbuffer[0] = '\0';
 	struct ServerListNode* temp;
 	int i,status,err,nread;
 
@@ -83,6 +81,7 @@ void communication(int sock)
 			perror("MirrorServer reading from Initiator");
 			exit(1);
 		}
+		printf("Received from initiator: \"%s\"\n\n",rcvbuffer);
 		/* Insert it in our list */
 		if(strcmp(rcvbuffer,"END"))
 			ServerListInsert(server_list,rcvbuffer);
@@ -128,6 +127,8 @@ void* mirror_manager(void* arg)
 	char path[PATHSIZE];
 	char rcvbuffer[MSGSIZE];
 	char message[MSGSIZE];
+	memset(rcvbuffer,0,MSGSIZE);
+	memset(message,0,MSGSIZE);
 	struct ListNode* request;
 	struct ServerListNode* node = (struct ServerListNode*)arg;
 
@@ -135,9 +136,10 @@ void* mirror_manager(void* arg)
 	ret = CreateClientSocket(&sock,&status,node->address,node->port);
 	if(ret == 1 || ret==2)
 	{
-		printf("Could not connect to ContentServer: <%s|%s>\n",node->address,node->port);
+		// printf("Could not connect to ContentServer: <%s|%s>\n",node->address,node->port);
 		pthread_exit((void*)0);
 	}
+	// printf("Connected to ContentServer: <%s|%s>\n",node->address,node->port);
 
 	/* Do this for each request intended for this ContentServer */
 	request = node -> request_list -> start;
@@ -154,7 +156,6 @@ void* mirror_manager(void* arg)
 		}
 
 		found=0;
-		memset(rcvbuffer,0,MSGSIZE);
 		/* Read results [one by one] from LIST */
 		while(strcmp(rcvbuffer,"END"))
 		{
@@ -215,6 +216,7 @@ void* worker(void* arg)
 	char port[PORTSIZE];
 	char dirorfilename[PATHSIZE];
 	char message[MSGSIZE];
+	memset(message,0,MSGSIZE);
 	char path[PATHSIZE];
 	char rcvbuffer[PATHSIZE];
 	int type,delay;
