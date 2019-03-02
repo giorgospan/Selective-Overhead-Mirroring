@@ -58,6 +58,8 @@ void* thread_f(void* argument)
 	int sock = arg->sock;
 	strcpy(rcvbuffer,arg->rcvbuffer);
 
+	printf("%d-th Thread[%u] with socket:%d\n",arg->id,(unsigned)pthread_self(),sock);
+
 	/*Check operation*/
 	sscanf(rcvbuffer,"%s",operation);
 	if(!strcmp(operation,"LIST"))
@@ -90,6 +92,7 @@ void* thread_f(void* argument)
 	{
 		fetch(sock,rcvbuffer);
 	}
+	close(sock);
 	free(argument);
 	pthread_exit((void*)0);
 }
