@@ -12,6 +12,7 @@ struct argument
 {
 	char rcvbuffer[MSGSIZE];
 	int sock;
+	int id;
 };
 
 /*Inserts in contentlist every available entity*/

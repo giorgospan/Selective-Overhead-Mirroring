@@ -122,16 +122,17 @@ int main(int argc ,char* argv[])
 				exit(1);
 			}
 			count = 2*count;
-			ids = temp;
+			ids   = temp;
 		}
 
 		/* This will be passed to thread's functions */
-		struct argument arg;
-		strcpy(arg.rcvbuffer,rcvbuffer);
-		arg.sock = newsock;
+		struct argument* arg = malloc(sizeof(struct argument));
+		strcpy(arg->rcvbuffer,rcvbuffer);
+		arg->sock = newsock;
+		arg->id   = numthreads;
 
 		/* Create a new thread to serve the incoming request */
-		if (err = pthread_create(ids+numthreads,NULL,thread_f,(void *)&arg))
+		if (err = pthread_create(ids+numthreads,NULL,thread_f,(void *)arg))
 		{
 			my_perror("MirrorServer pthread_create()",err);
 			exit (1) ;
