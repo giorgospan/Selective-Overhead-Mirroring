@@ -101,8 +101,20 @@ ContentServerAddress2:ContentServerPort2:dirorfile2:delay2, ...>`
 
   * `delayX` : seconds added by ContentServerX before sending a directory or file
 
+
+#### Testing on localhost
+
+`./ContentServer -p 9001 -d ./content1`
+
+`./ContentServer -p 9002 -d ./content2`
+
+`./MirrorServer -p 9000 -m ./mirrored -w 5`
+
+`./MirrorInitiator -n localhost -p 9002 -s localhost:9001:dir/in/content1:0,localhost:9002:file_in_content2:1`
+
 #### Note
-Make sure ContentServer and MirrorServer are online before you start the MirrorInitiator program
+
+Make sure ContentServer and MirrorServer are running before you start the MirrorInitiator program
 
 
 
