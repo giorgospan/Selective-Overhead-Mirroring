@@ -81,12 +81,12 @@ int main(int argc,char* argv[])
 	if(!arg1 || !arg2 || !arg3)
 	{
 		fprintf(stderr,"Usage: ./MirrorServer -p <port> -m <dirname> -w <threadnum>\n\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	if(threadnum==0)
 	{
 		fprintf(stderr,"Error: <threadnum> must be a positive number\n\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	printf("\n=============================================================\n");
@@ -111,7 +111,7 @@ int main(int argc,char* argv[])
 		case 1:
 		case 2:
 			perror("MirrorServer making dirname");
-			exit(1);
+			exit(EXIT_FAILURE);
 	}
 
 	/* Create list with requests for each device */
@@ -121,7 +121,7 @@ int main(int argc,char* argv[])
 	if ((worker_ids = malloc(threadnum*sizeof(pthread_t))) == NULL )
 	{
 		perror("MirrorServer malloc() for worker ids");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/*Create threadnum workers*/
@@ -130,7 +130,7 @@ int main(int argc,char* argv[])
 		if (err = pthread_create(worker_ids+i,NULL,worker,NULL))
 		{
 			my_perror("MirrorServer pthread_create()",err);
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -151,22 +151,22 @@ int main(int argc,char* argv[])
 	if(ret == 1)
 	{
 		fprintf(stderr, "MirrorServer getaddrinfo():%s\n", gai_strerror(status));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	else if(ret == 2)
 	{
 		perror("MirrorServer: setsockopt()");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	else if(ret == 3)
 	{
 		perror("MirrorServer could not find an optimal socket");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	else if(ret == 4)
 	{
 		perror("MirrorServer listen()");
-        exit(1);
+        exit(EXIT_FAILURE);
 	}
 
 	/* Wait for Initiator to connect */
@@ -174,7 +174,7 @@ int main(int argc,char* argv[])
 	if( (newsock = accept(sock, (struct sockaddr *)&initiator_address, &initiator_length)) == -1)
 	{
 		perror("MirrorServer accept()");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/*Start communication with Initiator using the newsock*/
@@ -219,19 +219,19 @@ int main(int argc,char* argv[])
 	if ( write_data(newsock,statistics,MSGSIZE) == -1)
 	{
 		perror("MirrorServer write to Initiator");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	ServerListDestroy(server_list);
 
 	if(pthread_cond_destroy(&cond_nonempty))
 	{
 		perror("cond_nonempty");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	if(pthread_cond_destroy(&cond_nonfull))
 	{
 		perror("cond_nonfull");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	pthread_mutex_destroy(&buffer_mtx);
@@ -250,5 +250,5 @@ int main(int argc,char* argv[])
 	printf("\n==========================\n");
 	printf("MirrorServer is exiting...");
 	printf("\n==========================\n");
-	exit(0);
+	exit(EXIT_FAILURE);
 }

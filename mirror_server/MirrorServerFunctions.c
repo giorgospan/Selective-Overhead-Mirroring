@@ -79,7 +79,7 @@ void communication(int sock)
 		if(read_data(sock,rcvbuffer,MSGSIZE)==-1)
 		{
 			perror("MirrorServer reading from Initiator");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 		/* Insert it in our list */
 		if(strcmp(rcvbuffer,"END"))
@@ -94,7 +94,6 @@ void communication(int sock)
 	}
 	/* Assign each mirror_manager thread a ContentServer to communicate with */
 	temp = server_list-> start;
-	ServerListPrint(server_list);
 	for(i=0;i<server_list->counter;++i,temp=temp->next)
 	{
 		if (err = pthread_create(manager_ids+i,NULL,mirror_manager,(void *)temp))
@@ -136,7 +135,7 @@ void* mirror_manager(void* arg)
 	ret = CreateClientSocket(&sock,&status,node->address,node->port);
 	if(ret == 1 || ret==2)
 	{
-		printf("Could not connect to ContentServer: <%s|%s>\n",node->address,node->port);
+		printf("Manager could not connect to ContentServer: <%s|%s>\n",node->address,node->port);
 		pthread_exit((void*)0);
 	}
 
@@ -147,13 +146,13 @@ void* mirror_manager(void* arg)
 		/* ID: <ContentServer Address,ContentServer Port> */
 		sprintf(message,"LIST %s %s %d",node->address,node->port,request->type);
 
-		printf("Manager[%u] requesting \"%s\"\n\n",(unsigned)pthread_self(),message);
+		// printf("Manager[%u] requesting \"%s\"\n\n",(unsigned)pthread_self(),message);
 
 		/* Send LIST message to ContentServer */
 		if ( write_data(sock ,message,MSGSIZE) == -1)
 		{
 			perror("MirrorManager writing LIST message");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 
 		found=0;
@@ -165,7 +164,7 @@ void* mirror_manager(void* arg)
 			if(read_data(sock,rcvbuffer,MSGSIZE) == -1)
 			{
 				perror("MirrorManager read()");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 			if(strcmp(rcvbuffer,"END")!=0)
 			{
@@ -190,7 +189,7 @@ void* mirror_manager(void* arg)
 			if ( write_data(sock ,"END",MSGSIZE) == -1)
 			{
 				perror("MirrorManager write()");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 		}
 		else
@@ -199,7 +198,7 @@ void* mirror_manager(void* arg)
 			if ( write_data(sock ,"NO END",MSGSIZE) == -1)
 			{
 				perror("MirrorManager write()");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 		}
 	}
@@ -261,12 +260,13 @@ void* worker(void* arg)
 			if(ret == 1)
 			{
 				fprintf(stderr, "Worker getaddrinfo():%s\n", gai_strerror(status));
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 			else if(ret == 2)
 			{
-				fprintf(stderr,"Worker[%u] could not connect to ContentServer: <%s|%s>\n\n",(unsigned)pthread_self(),address,port);
-				exit(1);
+				fprintf(stderr,"Worker could not connect to ContentServer: <%s|%s>\n\n",address,port);
+				continue;
+				// exit(EXIT_FAILURE);
 			}
 
 			/*Send FETCH message to ContentServer */
@@ -274,14 +274,14 @@ void* worker(void* arg)
 			if ( write_data(sock ,message,MSGSIZE) == -1)
 			{
 				perror("Worker writing FETCH message");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 
 			/*Make sure file is still in ContentServer*/
 			if( read_data(sock,rcvbuffer,MSGSIZE)==-1)
 			{
 				perror("Worker reading answer for FETCH message");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 			if(!strcmp(rcvbuffer,"EXISTS"))
 			{
@@ -306,7 +306,7 @@ void* worker(void* arg)
 					if(!temp)
 					{
 						perror("MirrorServer realloc()");
-						exit(1);
+						exit(EXIT_FAILURE);
 					}
 					count = 2*count;
 					size_table = temp;

@@ -11,7 +11,7 @@ void ListCreate(struct List** list)
 	if( (*list = malloc(sizeof(struct List)))==NULL)
 	{
 		perror("ContentServer ListCreate()");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	(*list) -> start = NULL;
@@ -25,7 +25,7 @@ void ListInsert(struct List* list,char* payload,int type)
 	if( (new = malloc(sizeof(struct ListNode)))==NULL)
 	{
 		perror("ContentServer ListInsert()");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	/* Add payload to the newly created node */
 	new->entity = malloc( (strlen(payload)+1)*sizeof(char) );

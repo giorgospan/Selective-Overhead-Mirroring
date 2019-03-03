@@ -51,7 +51,7 @@ int main(int argc,char* argv[])
 		fprintf(stderr,"Usage: ./MirrorInitiator -n <MirrorServerAddress> -p <MirrorServerPort>"
 " -s <ContentServerAddress1:ContentServerPort1:dirorfile1:delay1,"
 "ContentServerAddress2:ContentServerPort2:dirorfile2:delay2, ...>\n\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 
@@ -66,12 +66,12 @@ int main(int argc,char* argv[])
 	if(ret == 1)
 	{
 		fprintf(stderr, "Initiator getaddrinfo():%s\n", gai_strerror(status));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	else if(ret == 2)
 	{
 		perror("Initiator could not find an optimal socket");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/*Start communication Initiator <-----> MirrorServer */
@@ -85,5 +85,5 @@ int main(int argc,char* argv[])
 	printf("\n========================\n");
 	printf("Initiator is exiting....");
 	printf("\n========================\n");
-	exit(0);
+	exit(EXIT_FAILURE);
 }

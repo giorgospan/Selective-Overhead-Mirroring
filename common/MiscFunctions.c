@@ -64,7 +64,7 @@ int CreateClientSocket(int* sock,int* status,char* address,char* port)
 	if (!p)
 	{
 		// perror(" mirror-manager could not find an optimal socket");
-		// exit(1);
+		// exit(EXIT_FAILURE);
 		return 2;
 	}
 

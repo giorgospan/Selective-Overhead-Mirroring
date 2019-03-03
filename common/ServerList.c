@@ -12,7 +12,7 @@ void ServerListCreate(struct ServerList** list)
 	if( (*list = malloc(sizeof(struct ServerList)))==NULL)
 	{
 		perror("MirrorServer ServerListCreate()");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	(*list) -> start = NULL;
@@ -32,8 +32,9 @@ void ServerListInsert(struct ServerList* list,char* data)
 	ret = sscanf(data,"%[^:] : %[^:] : %[^:] : %d",address,port,dirorfile,&delay);
 	if(ret != 4)
 	{
-		fprintf(stderr,"Incorrect request: \"%s\"\nExiting...\n\n",data);
-		exit(1);
+		fprintf(stderr,"Incorrect request: \"%s\"\nMoving on to the next one...\n\n",data);
+		// exit(EXIT_FAILURE);
+		return;
 	}
 
 	/*Check if server is already in ServerList*/
@@ -51,7 +52,7 @@ void ServerListInsert(struct ServerList* list,char* data)
 	if( (new = malloc(sizeof(struct ServerListNode)))==NULL)
 	{
 		perror("MirrorServer ListInsert()");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/*Copy address*/

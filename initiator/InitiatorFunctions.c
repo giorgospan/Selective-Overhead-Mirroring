@@ -11,6 +11,7 @@ void communication(int socket,char* list)
 	/*Send requests to MirrorServer*/
 	char* request;
 	char sendbuffer[MSGSIZE];
+	memset(sendbuffer,0,MSGSIZE);
 	char rcvbuffer[MSGSIZE];
 	int end = 0;
 
@@ -22,7 +23,7 @@ void communication(int socket,char* list)
 		if ( write_data(socket ,sendbuffer,MSGSIZE) == -1)
 		{
 			perror("Initiator write()");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 		request = strtok (NULL, ",");
     }
@@ -30,13 +31,13 @@ void communication(int socket,char* list)
 	if ( write_data(socket,"END",MSGSIZE) == -1)
 	{
 		perror("Initiator writing END");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	/*Wait for statistics*/
 	if ( read_data(socket,rcvbuffer,MSGSIZE) == -1)
 	{
 		perror("Initiator reading stats");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	printf("Statistics:\n");

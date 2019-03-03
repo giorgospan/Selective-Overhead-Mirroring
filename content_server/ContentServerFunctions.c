@@ -26,7 +26,7 @@ void content(const char *name)
     if (!(dir = opendir(name)))
 	{
 		perror("ContentServer opening directory");
-        exit(1);
+        exit(EXIT_FAILURE);
 	}
 
     while (entry = readdir(dir))
@@ -73,7 +73,7 @@ void* thread_f(void* argument)
 			if( read_data(sock,termsignal,MSGSIZE)==-1)
 			{
 				perror("ContentServer reading termisignal from mirror-manager");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 			if(!strcmp(termsignal,"NO END"))
 			{
@@ -82,7 +82,7 @@ void* thread_f(void* argument)
 				if( read_data(sock,newbuffer,MSGSIZE)==-1)
 				{
 					perror("ContentServer reading new LIST <ID> <delay>");
-					exit(1);
+					exit(EXIT_FAILURE);
 				}
 			}
 			else break;
@@ -108,10 +108,11 @@ void list(int newsock)
 	{
 		/*Send every available entity in from your contentlist*/
 		sprintf(sendbuffer,"%s %d",current->entity,current->type);
+		// printf("Sending: \"%s\"\n",sendbuffer);
 		if( write_data(newsock,sendbuffer,MSGSIZE)==-1)
 		{
 			perror("ContentServer write() during LIST");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 		current = current -> next;
 	}
@@ -119,7 +120,7 @@ void list(int newsock)
 	if( write_data(newsock,"END",MSGSIZE)==-1)
 	{
 		perror("ContentServer write() during LIST");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 }
 
@@ -143,7 +144,7 @@ void fetch(int sock,char* rcvbuffer)
 		if( write_data(newsock,"NOT EXIST",MSGSIZE)==-1)
 		{
 			perror("ContentServer write() NOT EXISTS during FETCH");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 	}
 	else
@@ -151,7 +152,7 @@ void fetch(int sock,char* rcvbuffer)
 		if( write_data(newsock,"EXISTS",MSGSIZE)==-1)
 		{
 			perror("ContentServer write() EXISTS during FETCH");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -165,7 +166,7 @@ void fetch(int sock,char* rcvbuffer)
 		if( write_data(newsock,databuffer,nread)==-1)
 		{
 			perror("ContentServer write() FILEDATA during FETCH");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 	}
 	close(fd);

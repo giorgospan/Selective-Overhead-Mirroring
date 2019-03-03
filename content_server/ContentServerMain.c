@@ -52,7 +52,7 @@ int main(int argc ,char* argv[])
 	if(!arg1 || !arg2)
 	{
 		fprintf(stderr,"Usage: ./ContentServer -p <port> -d <dirorfilename>\n\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	printf("\n=============================================================\n");
 	printf("%-20s%s\n","Content Port:",port);
@@ -72,22 +72,22 @@ int main(int argc ,char* argv[])
 	if(ret == 1)
 	{
 		fprintf(stderr, "ContentServer getaddrinfo():%s\n", gai_strerror(status));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	else if(ret == 2)
 	{
 		perror("ContentServer: setsockopt()");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	else if(ret == 3)
 	{
 		perror("ContentServer could not find an optimal socket");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	else if(ret == 4)
 	{
 		perror("ContentServer listen()");
-        	exit(1);
+        	exit(EXIT_FAILURE);
 	}
 
 	// printf("Passive socket		:%d\n\n",sock);
@@ -100,14 +100,14 @@ int main(int argc ,char* argv[])
 		if( (newsock = accept(sock, (struct sockaddr *)&mirrorserver_address, &length)) == -1)
 		{
 			perror("ContentServer accept()");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 
 		/* Read LIST or FETCH */
 		if(read_data(newsock,rcvbuffer,MSGSIZE)==-1)
 		{
 			perror("ContentServer read()");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 
 		/* Check if realloc is needed for thread_id array */
@@ -117,7 +117,7 @@ int main(int argc ,char* argv[])
 			if(!temp)
 			{
 				perror("ContentServer realloc()");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 			count = 2*count;
 			ids   = temp;
@@ -159,5 +159,5 @@ int main(int argc ,char* argv[])
 	printf("\n===========================\n");
 	printf("ContentServer is exiting...");
 	printf("\n===========================\n");
-	exit(0);
+	exit(EXIT_FAILURE);
 }
