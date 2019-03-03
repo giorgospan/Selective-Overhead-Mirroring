@@ -1,28 +1,28 @@
 # source files
-INIT_SOURCE	     = $(wildcard ./initiator/*.c)
-MIRROR_SOURCE	   = $(wildcard ./mirror_server/*.c)
-CONTENT_SOURCE	 = $(wildcard ./content_server/*.c)
-COMMON_SOURCE    = $(wildcard ./common/*.c)
+INIT_SOURCE    = $(wildcard ./initiator/*.c)
+MIRROR_SOURCE  = $(wildcard ./mirror_server/*.c)
+CONTENT_SOURCE = $(wildcard ./content_server/*.c)
+COMMON_SOURCE  = $(wildcard ./common/*.c)
 
 # object files
-INIT_OBJS 	     = $(INIT_SOURCE:%.c=%.o)
-MIRROR_OBJS 	   = $(MIRROR_SOURCE:%.c=%.o)
-CONTENT_OBJS	   = $(CONTENT_SOURCE:%.c=%.o)
-COMMON_OBJS      = $(COMMON_SOURCE:%.c=%.o)
+INIT_OBJS      = $(INIT_SOURCE:%.c=%.o)
+MIRROR_OBJS    = $(MIRROR_SOURCE:%.c=%.o)
+CONTENT_OBJS   = $(CONTENT_SOURCE:%.c=%.o)
+COMMON_OBJS    = $(COMMON_SOURCE:%.c=%.o)
 
 # headers
-HEADERS	       	= $(wildcard ./include/*.h)
+HEADERS        = $(wildcard ./include/*.h)
 
 # build directory
-BUILDDIR = ./build
+BUILDDIR       = ./build
 
 # build files
-INIT_OUT	       = MirrorInitiator
-MIRROR_OUT 	     = MirrorServer
-CONTENT_OUT 	   = ContentServer
+INIT_OUT       = MirrorInitiator
+MIRROR_OUT     = MirrorServer
+CONTENT_OUT    = ContentServer
 
-CC		           = gcc
-CFLAGS		       = -I./include -g
+CC             = gcc
+CFLAGS         = -I./include -g
 
 ############## Initiator ##############
 init:$(BUILDDIR)/$(INIT_OUT)

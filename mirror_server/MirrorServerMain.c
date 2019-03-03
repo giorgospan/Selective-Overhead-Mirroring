@@ -22,23 +22,23 @@ buffer_t buffer;
 pthread_t* manager_ids;
 
 
-long long bytes_transferred 	   = 0;
-int files_transferred 			     = 0;
-int dirs_transferred			       = 0;
-int numDevicesDone 				       = 0;
-int managers_exited 			       = 0;
 char* dirname;
+long long bytes_transferred      = 0;
+int files_transferred            = 0;
+int dirs_transferred             = 0;
+int numDevicesDone               = 0;
+int managers_exited              = 0;
 
 
-pthread_mutex_t buffer_mtx 	     = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t bytes_mtx 	     = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t files_mtx 	     = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t dirs_mtx 	       = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t buffer_mtx       = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t bytes_mtx        = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t files_mtx        = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t dirs_mtx         = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t devices_done_mtx = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t size_table_mtx 	 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t size_table_mtx   = PTHREAD_MUTEX_INITIALIZER;
 
-pthread_cond_t cond_nonempty 	   = PTHREAD_COND_INITIALIZER;
-pthread_cond_t cond_nonfull 	   = PTHREAD_COND_INITIALIZER;
+pthread_cond_t cond_nonempty     = PTHREAD_COND_INITIALIZER;
+pthread_cond_t cond_nonfull      = PTHREAD_COND_INITIALIZER;
 
 int main(int argc,char* argv[])
 {
@@ -114,8 +114,6 @@ int main(int argc,char* argv[])
 			exit(EXIT_FAILURE);
 	}
 
-	/* Create list with requests for each device */
-	ServerListCreate(&server_list);
 
 	/* Create ID table for worker threads */
 	if ((worker_ids = malloc(threadnum*sizeof(pthread_t))) == NULL )
@@ -134,17 +132,6 @@ int main(int argc,char* argv[])
 		}
 	}
 
-	/*Initialize our buffer*/
-	buffer.data = malloc(BUFFERSIZE*sizeof(struct buffer_entry));
-	for(i=0;i<BUFFERSIZE;++i)
-	{
-		buffer.data[i].address       = NULL;
-		buffer.data[i].port          = NULL;
-		buffer.data[i].dirorfilename = NULL;
-	}
-	buffer.start = 0;
-	buffer.end   = -1;
-	buffer.count = 0;
 
 	/*Create socket and start listening to it*/
 	ret = CreateServerSocket(&sock,&status,port);
@@ -169,59 +156,77 @@ int main(int argc,char* argv[])
         exit(EXIT_FAILURE);
 	}
 
-	/* Wait for Initiator to connect */
-  initiator_length = sizeof initiator_address;
-	if( (newsock = accept(sock, (struct sockaddr *)&initiator_address, &initiator_length)) == -1)
+	/*Initialize our buffer*/
+	buffer.data = malloc(BUFFERSIZE*sizeof(struct buffer_entry));
+	for(i=0;i<BUFFERSIZE;++i)
 	{
-		perror("MirrorServer accept()");
-		exit(EXIT_FAILURE);
+		buffer.data[i].address       = NULL;
+		buffer.data[i].port          = NULL;
+		buffer.data[i].dirorfilename = NULL;
 	}
+	buffer.start = 0;
+	buffer.end   = -1;
+	buffer.count = 0;
 
-	/*Start communication with Initiator using the newsock*/
-	communication(newsock);
+	while (1) {
 
-	/*Wait for workers to exit*/
-	for(i=0;i<threadnum;++i)
-	{
-		if ( err = pthread_join (*(worker_ids+i), NULL ))
+		/* Wait for an Initiator program to connect */
+		initiator_length = sizeof initiator_address;
+		if( (newsock = accept(sock, (struct sockaddr *)&initiator_address, &initiator_length)) == -1)
 		{
-			my_perror("MirrorServer() pthread_join [worker]", err );
-			exit (1) ;
+			perror("MirrorServer accept()");
+			exit(EXIT_FAILURE);
 		}
-	}
 
-	/*Send back statistics to Initiator*/
-	char statistics[MSGSIZE];
-	memset(statistics,0,MSGSIZE);
-	char bytes[MSGSIZE];
-	char files[MSGSIZE];
-	char dirs[MSGSIZE];
-	char average[MSGSIZE];
-	char variance[MSGSIZE];
+		/* Create list in which we'll store requests for each device */
+		ServerListCreate(&server_list);
 
-	if(bytes_transferred > 0)
-	{
-		av_size = (double)bytes_transferred / files_transferred;
-		var     = find_variance(av_size,files_transferred);
-	}
-	else
+		/*Start communication with Initiator using the newsock*/
+		communication(newsock);
+
+		// /*Wait for workers to exit*/
+		// for(i=0;i<threadnum;++i)
+		// {
+			// 	if ( err = pthread_join (*(worker_ids+i), NULL ))
+			// 	{
+				// 		my_perror("MirrorServer() pthread_join [worker]", err );
+				// 		exit (1) ;
+				// 	}
+				// }
+
+		/*Send back statistics to Initiator*/
+		char statistics[MSGSIZE];
+		memset(statistics,0,MSGSIZE);
+		char bytes[MSGSIZE];
+		char files[MSGSIZE];
+		char dirs[MSGSIZE];
+		char average[MSGSIZE];
+		char variance[MSGSIZE];
+
+		if(bytes_transferred > 0)
+		{
+			av_size = (double)bytes_transferred / files_transferred;
+			var     = find_variance(av_size,files_transferred);
+		}
+		else
 		av_size = var = 0;
 
-	snprintf(bytes,sizeof(bytes)-1,"%-25s%llu","Bytes transferred:",bytes_transferred);
-	snprintf(files,sizeof(bytes)-1,"%-25s%d","Files transferred:",files_transferred);
-	snprintf(dirs,sizeof(bytes)-1,"%-25s%d","Directories transferred:",dirs_transferred);
-	snprintf(average,sizeof(average)-1,"%-25s%.2lf bytes","Average file size:",av_size);
-	snprintf(variance,sizeof(variance)-1,"%-25s%.2lf bytes","Size variance:",var);
+		snprintf(bytes,sizeof(bytes)-1,"%-25s%llu","Bytes transferred:",bytes_transferred);
+		snprintf(files,sizeof(bytes)-1,"%-25s%d","Files transferred:",files_transferred);
+		snprintf(dirs,sizeof(bytes)-1,"%-25s%d","Directories transferred:",dirs_transferred);
+		snprintf(average,sizeof(average)-1,"%-25s%.2lf bytes","Average file size:",av_size);
+		snprintf(variance,sizeof(variance)-1,"%-25s%.2lf bytes","Size variance:",var);
 
+		snprintf(statistics,sizeof(statistics)-1,"%s\n%s\n%s\n%s\n%s",bytes,files,dirs,average,variance);
 
-	snprintf(statistics,sizeof(statistics)-1,"%s\n%s\n%s\n%s\n%s",bytes,files,dirs,average,variance);
-
-	if ( write_data(newsock,statistics,MSGSIZE) == -1)
-	{
-		perror("MirrorServer write to Initiator");
-		exit(EXIT_FAILURE);
+		if ( write_data(newsock,statistics,MSGSIZE) == -1)
+		{
+			perror("MirrorServer write to Initiator");
+			exit(EXIT_FAILURE);
+		}
+		ServerListDestroy(server_list);
+		printf("Moving on to the next iteration\n\n");
 	}
-	ServerListDestroy(server_list);
 
 	if(pthread_cond_destroy(&cond_nonempty))
 	{
