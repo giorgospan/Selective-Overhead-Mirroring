@@ -110,7 +110,7 @@ ContentServerAddress2:ContentServerPort2:dirorfile2:delay2, ...>`
 
 `./MirrorServer -p 9000 -m ./mirrored -w 5`
 
-`./MirrorInitiator -n localhost -p 9002 -s localhost:9001:dir/in/content1:0,localhost:9002:file_in_content2:1`
+`./MirrorInitiator -n localhost -p 9000 -s localhost:9001:dir/in/content1:0,localhost:9002:file_in_content2:1`
 
 #### Note
 
