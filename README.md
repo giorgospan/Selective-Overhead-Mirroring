@@ -3,7 +3,7 @@
 
 ## About
 
-The is an implementation of a *selective-overhead mirroring application* , capable of mirroring multiple directories from a remote machine (Content Server) to another selected machine (Mirror Server). This mirroring system consists of a series of web-based programs that work together in order to achieve the desired file transfer. Individual programs use threads to achieve data transfer.
+This is an implementation of a *selective-overhead mirroring application* , capable of mirroring multiple directories from a remote machine (Content Server) to another selected machine (Mirror Server). This mirroring system consists of a series of web-based programs that work together in order to achieve the desired file transfer. Individual programs use threads to achieve data transfer.
 
 ## How it works
 
